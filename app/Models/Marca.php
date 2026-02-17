@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Marca extends Model
 {
     Use HasFactory;
+    protected $fillable = ['nome', 'imagem'];
 }
