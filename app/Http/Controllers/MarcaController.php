@@ -54,7 +54,19 @@ class MarcaController extends Controller
      */
     public function update(Request $request, Marca $marca)
     {
-        //
+        /*print_r($request->all()); // os dados atualizados
+        echo '<hr>';
+        print_r($marca->getAttributes()); // os dados antigos
+        */
+
+        $marca->update($request->all());
+        return $marca;
+
+        /*  Diferença entre PUT E PATCH:
+            PUT: atualiza todo o recurso, mesmo os campos que não foram alterados, ou seja, se um campo não for enviado na requisição, ele será atualizado para null.
+            PATCH: atualiza apenas os campos que foram alterados, ou seja, se um campo
+            não for enviado na requisição, ele não será atualizado.
+        */
     }
 
     /**
