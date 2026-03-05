@@ -74,6 +74,9 @@ class MarcaController extends Controller
      */
     public function destroy(Marca $marca)
     {
-        //
+        $marca->delete();
+        //print_r($marca->getAttributes()); // os dados antigos
+        // getAttributes() é um método do Eloquent que retorna um array com os atributos atuais/alterados do modelo, ou seja, os dados do registro no banco de dados.
+        return ['msg' => 'Marca deletada com sucesso!'];
     }
 }
