@@ -52,7 +52,11 @@ class MarcaController extends Controller
      */
     public function show($id)
     {
+        // Mostrar os dados de um registro esoecífico
         $marca = $this->marca->find($id); // usando a instância do objeto
+        if($marca == null){
+            return ['erro' => 'Recurso pesquisado não existe'];
+        }
         return $marca; // sugestão de tipo
     }
 
@@ -69,6 +73,8 @@ class MarcaController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Atualizar dados de um registro existente;
+
         /*print_r($request->all()); // os dados atualizados
         echo '<hr>';
         print_r($marca->getAttributes()); // os dados antigos
@@ -76,6 +82,10 @@ class MarcaController extends Controller
 
         //$marca->update($request->all());
         $marca = $this->marca->find($id); // usando a instância do objeto
+
+        if($marca == null){
+            return ['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe'];
+        }
         $marca->update($request->all());
         return $marca;
 
@@ -94,6 +104,9 @@ class MarcaController extends Controller
     public function destroy($id)
     {
         $marca = $this->marca->find($id); // usando a instância do objeto
+        if($marca == null){
+            return ['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'];
+        } 
         $marca->delete();
         //print_r($marca->getAttributes()); // os dados antigos
         // getAttributes() é um método do Eloquent que retorna um array com os atributos atuais/alterados do modelo, ou seja, os dados do registro no banco de dados.
