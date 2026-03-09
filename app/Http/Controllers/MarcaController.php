@@ -45,6 +45,20 @@ class MarcaController extends Controller
     { 
         // Criar um novo registro;
         // $marca = Marca::create($request->all()); // não fazemos a instância do objeto
+        // nome
+        // imagem
+
+        $regras = [
+            'nome' => 'required|unique:marcas',
+            'imagem' => 'required'
+        ];
+
+        $feedback = [
+            'required' => 'O campo :attribbute é obrigatório',
+            'nome.unique' => 'O nome da marca já existe'
+        ];
+
+        $request->validate($regras, $feedback);
         $marca = $this->marca->create($request->all()); // usando a instância do objeto
         return response()->json($marca, 201); 
     }
@@ -132,9 +146,32 @@ O que é Type Hinting?
 Type Hinting é um recurso do PHP que permite especificar o 
 tipo de dado esperado para um parâmetro ou o tipo 
 de dado retornado por uma função ou método. 
-Isso ajuda a garantir que os dados sejam do tipo correto, 
+Isso ajuda a garantir que os dados sejam do tipo cor?reto, 
 evitando erros e melhorando a legibilidade do código.
 No exemplo acima, a sugestão de tipo "Marca" indica que
 o parâmetro $marca deve ser uma instância da classe Marca, e o
 retorno da função show() também deve ser do tipo Marca.
+
+
+
+O que é o Accept?
+É um cabeçalho(header) da requisição HTTP que informa ao servidor qual 
+formato de resposta o cliente deseja receber. 
+Ex:
+GET /produtos
+Accept: application/json
+{
+  "id": 1,
+  "nome": "Coca-Cola"
+}
+
+
+
+GET /produtos
+Accept: application/xml
+<produto>
+  <id>1</id>
+  <nome>Coca-Cola</nome>
+</produto>
+
 */
