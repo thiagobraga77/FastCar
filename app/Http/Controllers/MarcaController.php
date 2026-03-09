@@ -24,9 +24,10 @@ class MarcaController extends Controller
      */
     public function index(Marca $marca)
     {
+        // Listar todos os regitros;
         $marcas = $this->marca->all(); // usando a instância do objeto
         // $marcas =  Marca::all(); // não fazemos a instância do objeto
-        return $marcas;
+        return response()->json($marcas,200);
     }
 
     /**
@@ -41,10 +42,11 @@ class MarcaController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+    { 
+        // Criar um novo registro;
         // $marca = Marca::create($request->all()); // não fazemos a instância do objeto
         $marca = $this->marca->create($request->all()); // usando a instância do objeto
-        return $marca; 
+        return response()->json($marca, 201); 
     }
 
     /**
@@ -55,9 +57,9 @@ class MarcaController extends Controller
         // Mostrar os dados de um registro esoecífico
         $marca = $this->marca->find($id); // usando a instância do objeto
         if($marca == null){
-            return ['erro' => 'Recurso pesquisado não existe'];
+            return response()->json(['erro' => 'Recurso pesquisado não existe'], 404); // json
         }
-        return $marca; // sugestão de tipo
+        return response()->json($marca,200); // sugestão de tipo
     }
 
     /**
@@ -84,10 +86,11 @@ class MarcaController extends Controller
         $marca = $this->marca->find($id); // usando a instância do objeto
 
         if($marca == null){
-            return ['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe'];
+            return response()->json(['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe'],404);
         }
         $marca->update($request->all());
-        return $marca;
+        return response()->json($marca,200); // sugestão de tipo
+
 
         //Para que serve o find?
         //O método find() é usado para buscar um registro específico no banco de dados com base em seu ID. Ele retorna uma instância do modelo correspondente ao registro encontrado ou null se nenhum registro for encontrado com o ID fornecido. No exemplo acima, $this->marca->find($id) busca a marca com o ID especificado e retorna a instância do modelo Marca correspondente a esse registro.
@@ -105,12 +108,12 @@ class MarcaController extends Controller
     {
         $marca = $this->marca->find($id); // usando a instância do objeto
         if($marca == null){
-            return ['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'];
+            return response()->json(['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'],404);
         } 
         $marca->delete();
         //print_r($marca->getAttributes()); // os dados antigos
         // getAttributes() é um método do Eloquent que retorna um array com os atributos atuais/alterados do modelo, ou seja, os dados do registro no banco de dados.
-        return ['msg' => 'Marca deletada com sucesso!'];
+        return response()->json(['msg' => 'Marca deletada com sucesso!'],200);
     }
 }
 
