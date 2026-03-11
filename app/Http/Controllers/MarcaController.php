@@ -48,17 +48,8 @@ class MarcaController extends Controller
         // nome
         // imagem
 
-        $regras = [
-            'nome' => 'required|unique:marcas',
-            'imagem' => 'required'
-        ];
 
-        $feedback = [
-            'required' => 'O campo :attribbute é obrigatório',
-            'nome.unique' => 'O nome da marca já existe'
-        ];
-
-        $request->validate($regras, $feedback);
+        $request->validate($this->marca->rules(), $this->marca->feedback());
         $marca = $this->marca->create($request->all()); // usando a instância do objeto
         return response()->json($marca, 201); 
     }
@@ -174,4 +165,9 @@ Accept: application/xml
   <nome>Coca-Cola</nome>
 </produto>
 
-*/
+
+Rules -> São regras de validação de dados. Elas definem o que é permitido
+ou não quando alguém envia dados para o sistema.
+As rules garantem que os dados estejam corretos antes de serem salvos no banco.
+
+*/ 
