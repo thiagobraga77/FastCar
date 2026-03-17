@@ -48,9 +48,16 @@ class MarcaController extends Controller
         // nome
         // imagem
 
-
         $request->validate($this->marca->rules(), $this->marca->feedback());
-        $marca = $this->marca->create($request->all()); // usando a instância do objeto
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens', 'public');
+
+        dd($imagem_urn);
+
+        $marca = $this->marca->create([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn]); // usando a instância do objeto
+
         return response()->json($marca, 201); 
     }
 
