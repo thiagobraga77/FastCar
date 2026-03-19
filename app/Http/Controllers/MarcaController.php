@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use App\Models\Marca;
 use Illuminate\Http\Request;
 
@@ -119,6 +120,10 @@ class MarcaController extends Controller
         } else {
             $request->validate($marca->rules(), $marca->feedback());
         }
+        // remove o arquivo antigo caso um novo arquivo tenha sido enviado no request
+        if($request->file('imagem')){
+            Storage::disk('public')->delete($marca->imagem);
+        }
 
         $request->validate($marca->rules(), $marca->feedback());
 
@@ -138,12 +143,15 @@ class MarcaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $marca = $this->marca->find($id); // usando a instância do objeto
         if($marca == null){
             return response()->json(['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'],404);
         } 
+        if($request->file('imagem')){
+            Storage::disk('public')->delete($marca->imagem);
+        }
         $marca->delete();
         //print_r($marca->getAttributes()); // os dados antigos
         // getAttributes() é um método do Eloquent que retorna um array com os atributos atuais/alterados do modelo, ou seja, os dados do registro no banco de dados.
