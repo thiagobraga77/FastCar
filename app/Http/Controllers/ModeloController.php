@@ -7,13 +7,20 @@ use Illuminate\Http\Request;
 
 class ModeloController extends Controller
 {
+    public function __construct(Modelo $modelo)
+    {
+        $this->modelo = $modelo;
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Modelo $modelo)
     {
-        //
-    }
+        // Listar todos os regitros;
+         // usando a instância do objeto
+        // $modelos =  modelo::all(); // não fazemos a instância do objeto
+        return response()->json($this->modelo->all(),200);
+    }   
 
     /**
      * Show the form for creating a new resource.
@@ -28,16 +35,37 @@ class ModeloController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->modelo->rules(), $this->modelo->feedback());
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens/modelos', 'public');
+
+        dd($imagem_urn);
+
+        $modelo = $this->modelo->create([
+            'marca_id' => $request->marca_id,
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+            'numero_portas' => $request->numero_portas,
+            'lugares' => $request->lugares,
+            'air_bag' => $request->air_bag,
+            'abs' => $request->abs,
+            ]); // usando a instância do objeto
+
+        return response()->json($modelo, 201); 
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Modelo $modelo)
+    public function show($id)
     {
-        //
+        $modelo = $this->modelo->find($id); // usando a instância do objeto
+        if($modelo == null){
+            return response()->json(['erro' => 'Recurso pesquisado não existe'], 404); // json
+        }
+        return response()->json($modelo,200); // sugestão de tipo
     }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -50,16 +78,72 @@ class ModeloController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Modelo $modelo)
+    public function update(Request $request, $id)
     {
-        //
+        $modelo = $this->modelo->find($id); // usando a instância do objeto
+
+        if($modelo == null){
+            return response()->json(['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe'],404);
+        }
+
+        if($request->method() == 'PATCH') {
+            return ['teste' => 'Verbo PATCH'];
+
+            $regrasDinamicas = array();
+            //percorrendo todas as regras definidas no Model
+            foreach($modelo->rules() as $input => $regra){
+                // coletar apenas as regras aplicadas aos parâmetros parciais da requisição PATCH
+
+                if(array_key_exists($input, $request->all())) {
+                    $regrasDinamicas[$input] = $regra;
+                }
+            }
+            dd($regrasDinamicas());
+
+            $request->validate($regrasDinamicas, $modelo->feedback());
+        } else {
+            $request->validate($modelo->rules(), $modelo->feedback());
+        }
+        // remove o arquivo antigo caso um novo arquivo tenha sido enviado no request
+        if($request->file('imagem')){
+            Storage::disk('public')->delete($modelo->imagem);
+        }
+
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens/modelos', 'public');
+
+        $modelo->update([
+            'marca_id' => $request->marca_id,
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+            'numero_portas' => $request->numero_portas,
+            'lugares' => $request->lugares,
+            'air_bag' => $request->air_bag,
+            'abs' => $request->abs,
+        ]);
+
+        $request->validate($modelo->rules(), $modelo->feedback());
+
+        $modelo->update($request->all());
+        return response()->json($modelo,200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Modelo $modelo)
+    public function destroy(Request $request, $id)
     {
-        //
+        $modelo = $this->modelo->find($id); // usando a instância do objeto
+        if($modelo == null){
+            return response()->json(['erro' => 'Impossível realizar a exclusão. O recurso solicitado não existe'],404);
+        } 
+        if($request->file('imagem')){
+            Storage::disk('public')->delete($modelo->imagem);
+        }
+        $modelo->delete();
+        //print_r($modelo->getAttributes()); // os dados antigos
+        // getAttributes() é um método do Eloquent que retorna um array com os atributos atuais/alterados do modelo, ou seja, os dados do registro no banco de dados.
+        return response()->json(['msg' => 'Modelo deletada com sucesso!'],200);
     }
+    
 }
