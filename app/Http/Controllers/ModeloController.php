@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,9 @@ class ModeloController extends Controller
         // Listar todos os regitros;
          // usando a instância do objeto
         // $modelos =  modelo::all(); // não fazemos a instância do objeto
-        return response()->json($this->modelo->all(),200);
+        return response()->json($this->modelo->with('marca')->get(),200);
+        // all() -> criando um obj de consulta + get() = collection
+        // get() -> modificar a consulta -> collection
     }   
 
     /**
@@ -59,7 +62,7 @@ class ModeloController extends Controller
      */
     public function show($id)
     {
-        $modelo = $this->modelo->find($id); // usando a instância do objeto
+        $modelo = $this->modelo->with('marca')->find($id); // usando a instância do objeto
         if($modelo == null){
             return response()->json(['erro' => 'Recurso pesquisado não existe'], 404); // json
         }

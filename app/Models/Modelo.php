@@ -55,5 +55,8 @@ class Modelo extends Model
             'abs.boolean' => 'O campo ABS deve ser verdadeiro ou falso.',
         ];
     }
-
+    public function marca() {
+        // Um modelo pertence a uma marca
+        return $this->belongsTo('App\Models\Marca');
+    }
 }
