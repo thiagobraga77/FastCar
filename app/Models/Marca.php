@@ -13,7 +13,7 @@ class Marca extends Model
     public function rules() {
         return [
             'nome' => 'required|unique:marcas,nome,'.$this->id.'|min:3',
-            'imagem' => 'required|file|mines:png'
+            'imagem' => 'required|file|mimes:png'
         ];
         /*
         1) tabela
@@ -25,10 +25,14 @@ class Marca extends Model
     public function feedback() {
         return [
             'required' => 'O campo :attribbute é obrigatório', 
-            'imagem.mines' => 'O arquivo deve ser uma imagem do tipo PNG',
+            'imagem.mimes' => 'O arquivo deve ser uma imagem do tipo PNG',
             'nome.unique' => 'O nome da marca já existe',
             'nome.min' => 'O nome deve ter no mínimo 3 caracteres'
         ];
 
+    }
+    public function modelos(){
+    // uma marca possui muitos modelos
+    return $this->hasMany('App\Models\Modelo');
     }
 }

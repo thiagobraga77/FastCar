@@ -26,7 +26,7 @@ class MarcaController extends Controller
     public function index(Marca $marca)
     {
         // Listar todos os regitros;
-        $marcas = $this->marca->all(); // usando a instância do objeto
+        $marcas = $this->marca->with()->get(); // usando a instância do objeto
         // $marcas =  Marca::all(); // não fazemos a instância do objeto
         return response()->json($marcas,200);
     }
@@ -68,7 +68,7 @@ class MarcaController extends Controller
     public function show($id)
     {
         // Mostrar os dados de um registro esoecífico
-        $marca = $this->marca->find($id); // usando a instância do objeto
+        $marca = $this->marca->with('modelos')->find($id); // usando a instância do objeto
         if($marca == null){
             return response()->json(['erro' => 'Recurso pesquisado não existe'], 404); // json
         }
