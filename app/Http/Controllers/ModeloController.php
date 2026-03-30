@@ -22,12 +22,19 @@ class ModeloController extends Controller
         // $modelos =  modelo::all(); // não fazemos a instância do objeto
 
         $modelos = array();
-        dd($request->atributos);
+
+        if($request->has('atributos_marca')){
+            $atributos_marca = $request->atributos_marca;
+            $modelos = $this->modelo->with('marca:id'.$atributos_marca);
+        } else {
+            $modelos = $this->modelo->with('marca');
+        }
+        
         if($request->has('atributos')){
             $atributos = $request->atributos;
-            $modelos = $this->modelo->selectRaw($atributos)->with('marca')->get();
+            $modelos = $modelos->selectRaw($atributos)->get();
         } else {
-            $modelos = $this->modelo->with('marca')->get();
+            $modelos = $modelos->get();
         }
 
         return response()->json($this->modelo->with('marca')->get(),200);
