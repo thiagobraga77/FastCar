@@ -15,12 +15,23 @@ class ModeloController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Modelo $modelo)
+    public function index(Request $request)
     {
         // Listar todos os regitros;
          // usando a instância do objeto
         // $modelos =  modelo::all(); // não fazemos a instância do objeto
+
+        $modelos = array();
+        dd($request->atributos);
+        if($request->has('atributos')){
+            $atributos = $request->atributos;
+            $modelos = $this->modelo->selectRaw($atributos)->with('marca')->get();
+        } else {
+            $modelos = $this->modelo->with('marca')->get();
+        }
+
         return response()->json($this->modelo->with('marca')->get(),200);
+        
         // all() -> criando um obj de consulta + get() = collection
         // get() -> modificar a consulta -> collection
     }   
