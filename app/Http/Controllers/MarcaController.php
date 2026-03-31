@@ -23,8 +23,33 @@ class MarcaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Marca $marca)
+    public function index(Request $request)
     {
+         $marcas = array();
+
+        if($request->has('atributos_modelos')) {
+            $atributos_modelos = $request->atributos_modelos;
+            $marcas = $this->marca->with('modelos:id,'.$atributos_modelos);
+        } else {
+            $marcas = $this->marca->with('modelos');
+        }
+
+        if($request->has('filtro')) {
+            $filtros = explode(';', $request->filtro);
+            foreach($filtros as $key => $condicao) {
+
+                $c = explode(':', $condicao);
+                $marcas = $marcas->where($c[0], $c[1], $c[2]);
+
+            }
+        }
+
+        if($request->has('atributos')) {
+            $atributos = $request->atributos;
+            $marcas = $marcas->selectRaw($atributos)->get();
+        } else {
+            $marcas = $marcas->get();
+        }
         // Listar todos os regitros;
         $marcas = $this->marca->with()->get(); // usando a instância do objeto
         // $marcas =  Marca::all(); // não fazemos a instância do objeto
@@ -53,7 +78,6 @@ class MarcaController extends Controller
         $imagem = $request->file('imagem');
         $imagem_urn = $imagem->store('imagens', 'public');
 
-        dd($imagem_urn);
 
         $marca = $this->marca->create([
             'nome' => $request->nome,
@@ -88,52 +112,44 @@ class MarcaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Atualizar dados de um registro existente;
+        $marca = $this->marca->find($id);
 
-        /*print_r($request->all()); // os dados atualizados
-        echo '<hr>';
-        print_r($marca->getAttributes()); // os dados antigos
-        */
-
-        //$marca->update($request->all());
-        $marca = $this->marca->find($id); // usando a instância do objeto
-
-        if($marca == null){
-            return response()->json(['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe'],404);
+        if($marca === null) {
+            return response()->json(['erro' => 'Impossível realizar a atualização. O recurso solicitado não existe'], 404);
         }
 
-        if($request->method() == 'PATCH') {
-            return ['teste' => 'Verbo PATCH'];
+        if($request->method() === 'PATCH') {
 
             $regrasDinamicas = array();
-            //percorrendo todas as regras definidas no Model
-            foreach($marca->rules() as $input => $regra){
-                // coletar apenas as regras aplicadas aos parâmetros parciais da requisição PATCH
 
+            //percorrendo todas as regras definidas no Model
+            foreach($marca->rules() as $input => $regra) {
+                
+                //coletar apenas as regras aplicáveis aos parâmetros parciais da requisição PATCH
                 if(array_key_exists($input, $request->all())) {
                     $regrasDinamicas[$input] = $regra;
                 }
             }
-            dd($regrasDinamicas());
-
+            
             $request->validate($regrasDinamicas, $marca->feedback());
+
         } else {
             $request->validate($marca->rules(), $marca->feedback());
         }
-        // remove o arquivo antigo caso um novo arquivo tenha sido enviado no request
-        if($request->file('imagem')){
+        
+        //remove o arquivo antigo caso um novo arquivo tenha sido enviado no request
+        if($request->file('imagem')) {
             Storage::disk('public')->delete($marca->imagem);
         }
+        
         $imagem = $request->file('imagem');
-        $imagem_urn = $imagem->store('imagem', 'public');
+        $imagem_urn = $imagem->store('imagens', 'public');
 
         //preencher o objeto $marca com os dados do request
         $marca->fill($request->all());
         $marca->imagem = $imagem_urn;
-        // dd($marca->getAttributes());
+        //dd($marca->getAttributes());
         $marca->save();
-        // com o salve, caso não tenha o id, ele cria um novo automaticamente;
-
         /*
         $marca->update([
             'nome' => $request->nome,
@@ -141,10 +157,7 @@ class MarcaController extends Controller
         ]);
         */
 
-        $request->validate($marca->rules(), $marca->feedback());
-
-        $marca->update($request->all());
-        return response()->json($marca,200); // sugestão de tipo
+        return response()->json($marca, 200);
 
 
         //Para que serve o find?
