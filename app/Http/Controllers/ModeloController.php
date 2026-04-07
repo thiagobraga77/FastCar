@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
+use App\Repositories\ModeloRepository;
 
 class ModeloController extends Controller
 {
@@ -17,39 +18,27 @@ class ModeloController extends Controller
      */
     public function index(Request $request)
     {
-        // Listar todos os regitros;
-         // usando a instância do objeto
-        // $modelos =  modelo::all(); // não fazemos a instância do objeto
+        $modeloRepository = new ModeloRepository($this->modelo);
 
-        $modelos = array();
-
-        if($request->has('atributos_marca')){
+        if($request->has('atributos_marca')) {
             $atributos_marca = $request->atributos_marca;
-            $modelos = $this->modelo->with('marca:id'.$atributos_marca);
+            $atributos_marca = 'marca:id,'.$atributos_marca;
+            $modeloRepository->selectAtributosRegistrosRelacionados($atributos_marca);
         } else {
-            $modelos = $this->modelo->with('marca');
+            $modeloRepository->selectAtributosRegistrosRelacionados('marca');
         }
 
         if($request->has('filtro')) {
-            $filtros = explode(';',  $request->filtro);
-            dd($filtros);
-            foreach($filtros as $key => $condicao){
-                $c = explode(':', $condicao);
-                $modelos = $modelos->where($c[0], $c[1], $c[2]);
-            }    
-        }
-        
-        if($request->has('atributos')){
-            $atributos = $request->atributos;
-            $modelos = $modelos->selectRaw($atributos)->get();
-        } else {
-            $modelos = $modelos->get();
+           $modeloRepository->filtro($request->filtro);
         }
 
-        return response()->json($this->modelo->with('marca')->get(),200);
-        
-        // all() -> criando um obj de consulta + get() = collection
-        // get() -> modificar a consulta -> collection
+        if($request->has('atributos')) {
+            $modeloRepository->selectAtributos($request->atributos);
+        } 
+
+
+        // $marcas =  Marca::all(); // não fazemos a instância do objeto
+        return response()->json($modeloRepository->getResultado(),200);
     }   
 
     /**
