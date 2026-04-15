@@ -16,11 +16,11 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::apiResource('marca', MarcaController::class);
     Route::apiResource('modelo', ModeloController::class);
     Route::post('refresh', [AuthController::class, 'refresh']);
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 
 
 Route::post('login', [AuthController::class, 'login']);
-Route::post('logout', [AuthController::class, 'logout']);
 
 
 /* Bearer-> Portador do token */
