@@ -36,3 +36,6 @@ class AuthController extends Controller
         return response()->json(auth()->user());
     }
 }
+
+// iat : inicio
+// exp: final
