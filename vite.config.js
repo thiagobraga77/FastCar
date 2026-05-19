@@ -1,19 +1,28 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
-import vue from '@vitejs/plugin-vue';
+import vue from '@vitejs/plugin-vue'; // <-- 1. Importe o plugin do Vue aqui
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: [
+                'resources/sass/app.scss', // O laravel/ui mudou css para sass
+                'resources/js/app.js',
+            ],
             refresh: true,
         }),
-        tailwindcss(),
+        vue({  // <-- 2. Adicione a configuração do Vue aqui
+            template: {
+                transformAssetUrls: {
+                    base: null,
+                    includeAbsolute: false,
+                },
+            },
+        }),
     ],
-    server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
+    resolve: {
+        alias: {
+            vue: 'vue/dist/vue.esm-bundler.js', // <-- 3. Ajuda o Vue a renderizar no navegador
         },
     },
 });
